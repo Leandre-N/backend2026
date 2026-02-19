@@ -17,9 +17,9 @@ const createReservation = async (req, res) => {
     const reservation = await Reservation.create({
       salle_id,
       user_id: req.user.id,
-      date_debut,
-      date_fin,
-      montant,
+      date,
+      creneau,
+      montant_total,
       statut: 'EN_ATTENTE'
     })
     res.status(201).json({ message: 'Réservation créée avec succès', reservation })

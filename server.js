@@ -3,27 +3,20 @@ const app = require('./src/app');
 const sequelize = require('./src/config/database');
 const { error } = require('console');
 
-const User= require('./src/models/user');
-const Salle= require('./src/models/salle');
-const Reservation= require('./src/models/reservation');
-const Paiement= require('./src/models/paiement');
-const SalleImage= require('./src/models/salleImage');
-const Avis= require('./src/models/avis');
-const Notification = require('./src/models/notification');
-const SalleEquipement = require('./src/models/salleEquipement');
-const Disponibilite = require('./src/models/disponibilite');
+require('./src/models')
 
 
 
-
-const PORT = 3000 ;
+const PORT = 5000 ;
 
 const server = http.createServer(app);
+
+
 
 sequelize.authenticate()
 .then(()=>{
     console.log("connection reussi")
-    return sequelize.sync({ force: true });
+    return sequelize.sync();
 
 
 })

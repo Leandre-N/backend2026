@@ -20,7 +20,7 @@ const addSalleImage = async (req, res) => {
 
     const image = await SalleImage.create({
       salle_id,
-      url
+      image_url
     })
 
     res.status(201).json({ message: 'Image ajoutée à la salle', image })

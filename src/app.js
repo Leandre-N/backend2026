@@ -10,6 +10,15 @@ app.get('/', (req, res) => {
     res.send('hello');
 });
 
+app.use((req, res, next) => {
+  req.user = { 
+    id: 1, 
+    role: 'CLIENT' // change en 'PROPRIETAIRE' selon le test
+  };
+  next();
+});
+
+
 const userRoute = require('./routes/userRoute')
 app.use('/api/users', userRoute)
 

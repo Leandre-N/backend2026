@@ -2,6 +2,7 @@ const Salle = require('../models/salle')
 const Reservation = require('../models/reservation')
 const Equipement = require('../models/equipement')
 const SalleEquipement = require('../models/salleEquipement')
+const { Op } = require('sequelize')
 
 
 const createSalle = async (req, res) => {
@@ -14,8 +15,9 @@ const createSalle = async (req, res) => {
     const salle = await Salle.create({
       nom,
       description,
+      ville,
       adresse,
-      prix_jour,
+      prix,
       capacite,
       proprietaire_id: req.user.id
     })

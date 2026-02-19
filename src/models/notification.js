@@ -22,7 +22,12 @@ const Notification = sequelize.define('notification', {
   lu: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
-  }
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+
 });
 
-module.exports = Notification;
+module.exports = Notification;

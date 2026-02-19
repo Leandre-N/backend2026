@@ -25,8 +25,9 @@ const createPayment = async (req, res) => {
     const paiement = await Paiement.create({
       reservation_id,
       montant,
-      mode,
-      statut: 'SUCCES'
+      methode,
+      type,
+      statut: 'PAYE'
     })
 
     await reservation.update({ statut: 'PAYEE' })

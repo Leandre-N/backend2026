@@ -20,8 +20,8 @@ const createDisponibilite = async (req, res) => {
 
     const dispo = await Disponibilite.create({
       salle_id,
-      date_debut,
-      date_fin
+      date,
+      creneau
     })
 
     res.status(201).json({ message: 'Indisponibilité ajoutée', dispo })
