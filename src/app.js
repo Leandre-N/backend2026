@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 app.use((req, res, next) => {
   req.user = { 
     id: 1, 
-    role: 'CLIENT' // change en 'PROPRIETAIRE' selon le test
+    role: 'CLIENT' 
   };
   next();
 });

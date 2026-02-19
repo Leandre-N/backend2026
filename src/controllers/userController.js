@@ -4,7 +4,7 @@ const Reservation = require('../models/reservation')
 
 const createUser = async (req, res) => {
   try {
-    const { nom, email, telephone, mot_de_passe, role } = req.body
+    const { nom, email, telephone, mot_de_passe, role } = req.body || {}
     if (!nom || !email || !telephone || !mot_de_passe) {
       return res.status(400).json({ message: 'Tous les champs sont obligatoires.' })
     }
