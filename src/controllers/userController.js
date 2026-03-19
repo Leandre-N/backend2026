@@ -7,6 +7,7 @@ const jwtConfig = require('../config/jwt');
 
 
 const createUser = async (req, res) => {
+
   try {
     const { nom, email, telephone, mot_de_passe, role } = req.body || {}
     
@@ -14,7 +15,7 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Tous les champs sont obligatoires.' })
     }
 
-    const hashedPassword = await bcrypt.hash(mot_de_passe, 10); 
+    const hashedPassword = await bcrypt.hash(mot_de_passe, 8); 
 
     
 
