@@ -16,7 +16,7 @@ const server = http.createServer(app);
 sequelize.authenticate()
 .then(()=>{
     console.log("connection reussi")
-    return sequelize.sync();
+    return sequelize.sync({ alter: true });
 
 
 })

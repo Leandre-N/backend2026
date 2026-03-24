@@ -7,22 +7,37 @@ const { Op } = require('sequelize')
 
 const createSalle = async (req, res) => {
   try {
-    if (req.user.role !== 'PROPRIETAIRE') return res.status(403).json({ message: 'Accès réservé aux propriétaires' })
-    
-    const { nom, description, adresse, prix_jour, capacite } = req.body
-    if (!nom || !adresse || !prix_jour || !capacite) return res.status(400).json({ message: 'Tous les champs sont obligatoires.' })
+    if (req.user.role !== 'PROPRIETAIRE')
+      return res.status(403).json({ message: 'Accès réservé aux propriétaires' })
+
+    console.log('📥 Body reçu :', req.body)
+    console.log('🖼️ Fichier reçu :', req.file)
+
+    const { nom, description, ville, adresse, prix, capacite } = req.body
+
+    if (!nom || !ville || !prix || !capacite)
+      return res.status(400).json({ message: 'Tous les champs sont obligatoires.' })
+
+    // ✅ Construire l'URL de l'image si elle existe
+    const imageUrl = req.file
+      ? `uploads/salles/${req.file.filename}`
+      : null
 
     const salle = await Salle.create({
       nom,
       description,
       ville,
       adresse,
-      prix,
-      capacite,
-      proprietaire_id: req.user.id
+      prix: parseFloat(prix),
+      capacite: parseInt(capacite),
+      proprietaire_id: req.user.id,
+      image: imageUrl  // ← on va ajouter ce champ au modèle
     })
+
     res.status(201).json({ message: 'Salle créée avec succès', salle })
+
   } catch (error) {
+    console.error('❌ Erreur createSalle :', error.message)
     res.status(500).json({ error: error.message })
   }
 }

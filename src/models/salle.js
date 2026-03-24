@@ -7,7 +7,7 @@ const Salle = sequelize.define('salle', {
     autoIncrement: true,
     primaryKey: true
   },
-  proprietaire_id:{
+  proprietaire_id: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
@@ -28,7 +28,7 @@ const Salle = sequelize.define('salle', {
   latitude: {
     type: DataTypes.FLOAT
   },
- longitude: {
+  longitude: {
     type: DataTypes.FLOAT
   },
   capacite: {
@@ -39,10 +39,14 @@ const Salle = sequelize.define('salle', {
     type: DataTypes.FLOAT,
     allowNull: false
   },
+  image: {                        
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   statut: {
     type: DataTypes.ENUM('ACTIVE', 'INACTIVE'),
     defaultValue: 'ACTIVE'
   }
 });
 
-module.exports = Salle;
+module.exports = Salle;

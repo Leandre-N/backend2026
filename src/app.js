@@ -1,31 +1,22 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-
+const path = require("path"); // ← AJOUTER
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
+// ✅ Exposer le dossier uploads publiquement
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.get("/api/test", (req, res) => {
   res.json({ message: "Connexion réussie" });
 });
 
 app.get('/', (req, res) => {
-    res.send('hello');
+  res.send('hello');
 });
-
-app.use((req, res, next) => {
-  req.user = { 
-    id: 1, 
-    role: 'CLIENT' 
-  };
-  next();
-});
-
 
 const userRoute = require('./routes/userRoute')
 app.use('/api/users', userRoute)
