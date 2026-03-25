@@ -2,13 +2,13 @@ const express = require('express')
 const router = express.Router()
 const salleController = require('../controllers/salleController')
 const { auth, authorize } = require('../middlewares/auth')
-const upload = require('../middlewares/upload') // ← AJOUTER
+const upload = require('../middlewares/upload') 
 
 router.post(
   '/',
   auth,
   authorize(['PROPRIETAIRE']),
-  upload.single('image'), // ← AJOUTER
+  upload.single('image'), 
   salleController.createSalle
 )
 

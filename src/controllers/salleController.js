@@ -10,18 +10,10 @@ const createSalle = async (req, res) => {
     if (req.user.role !== 'PROPRIETAIRE')
       return res.status(403).json({ message: 'Accès réservé aux propriétaires' })
 
-    console.log('📥 Body reçu :', req.body)
-    console.log('🖼️ Fichier reçu :', req.file)
-
-    const { nom, description, ville, adresse, prix, capacite } = req.body
+    const { nom, description, ville, adresse, prix, capacite, equipements } = req.body
 
     if (!nom || !ville || !prix || !capacite)
       return res.status(400).json({ message: 'Tous les champs sont obligatoires.' })
-
-    // ✅ Construire l'URL de l'image si elle existe
-    const imageUrl = req.file
-      ? `uploads/salles/${req.file.filename}`
-      : null
 
     const salle = await Salle.create({
       nom,
@@ -31,10 +23,31 @@ const createSalle = async (req, res) => {
       prix: parseFloat(prix),
       capacite: parseInt(capacite),
       proprietaire_id: req.user.id,
-      image: imageUrl  // ← on va ajouter ce champ au modèle
+      image: req.file ? `uploads/salles/${req.file.filename}` : null
     })
 
-    res.status(201).json({ message: 'Salle créée avec succès', salle })
+    // ✅ Créer et lier les équipements si fournis
+    if (equipements) {
+      const liste = JSON.parse(equipements) // tableau JSON envoyé depuis Flutter
+      for (const nomEquip of liste) {
+        // Créer l'équipement s'il n'existe pas
+        const [equipement] = await Equipement.findOrCreate({
+          where: { nom: nomEquip }
+        })
+        // Lier à la salle
+        await SalleEquipement.create({
+          salle_id: salle.id,
+          equipement_id: equipement.id
+        })
+      }
+    }
+
+    // ✅ Retourner la salle avec ses équipements
+    const salleComplete = await Salle.findByPk(salle.id, {
+      include: [{ model: Equipement, through: SalleEquipement }]
+    })
+
+    res.status(201).json({ message: 'Salle créée avec succès', salle: salleComplete })
 
   } catch (error) {
     console.error('❌ Erreur createSalle :', error.message)
@@ -51,9 +64,20 @@ const getAllSalles = async (req, res) => {
   }
 }
 
+const User = require('../models/user')
+
 const getSalleById = async (req, res) => {
   try {
-    const salle = await Salle.findByPk(req.params.id, { include: [{ model: Equipement, through: SalleEquipement }] })
+    const salle = await Salle.findByPk(req.params.id, {
+      include: [
+        { model: Equipement, through: SalleEquipement },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['nom', 'telephone'], // ✅ nom + tel du proprio
+        }
+      ]
+    })
     if (!salle) return res.status(404).json({ message: 'Salle non trouvée' })
     res.json(salle)
   } catch (error) {
@@ -69,7 +93,7 @@ const updateSalle = async (req, res) => {
     if (!salle) return res.status(404).json({ message: 'Salle non trouvée' })
     if (salle.proprietaire_id !== req.user.id) return res.status(403).json({ message: 'Impossible de modifier une salle qui n\'est pas à vous' })
 
-    const { nom, description, adresse, prix, capacite, ville } = req.body
+    const { nom, description, adresse, prix, capacite, ville, equipements } = req.body
     
     // Si une nouvelle image est envoyée, on remplace l'ancienne
     let imageUrl = salle.image
@@ -86,7 +110,29 @@ const updateSalle = async (req, res) => {
       capacite: capacite ? parseInt(capacite) : salle.capacite,
       image: imageUrl
     })
-    res.json({ message: 'Salle mise à jour avec succès', salle })
+
+    // ✅ Mettre à jour les équipements si fournis
+    if (equipements) {
+      const liste = JSON.parse(equipements)
+      // Supprimer les anciennes associations
+      await SalleEquipement.destroy({ where: { salle_id: salle.id } })
+      
+      for (const nomEquip of liste) {
+        const [equipement] = await Equipement.findOrCreate({
+          where: { nom: nomEquip }
+        })
+        await SalleEquipement.create({
+          salle_id: salle.id,
+          equipement_id: equipement.id
+        })
+      }
+    }
+
+    const salleMiseAJour = await Salle.findByPk(salle.id, {
+      include: [{ model: Equipement, through: SalleEquipement }]
+    })
+
+    res.json({ message: 'Salle mise à jour avec succès', salle: salleMiseAJour })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

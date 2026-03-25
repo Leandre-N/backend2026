@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const userController = require('../controllers/userController')
-const { auth, authorize } = require('../middlewares/auth')  // ✅ corrige l'import
+const { auth, authorize } = require('../middlewares/auth') 
 
 
 router.post('/', userController.createUser)
@@ -12,8 +12,8 @@ router.get('/dashboard', auth, authorize(['PROPRIETAIRE']), userController.getPr
 router.put(
   '/:id',
   auth,
-  authorize(['CLIENT', 'PROPRIETAIRE']),  // ✅ on appelle la fonction avec les rôles
-  userController.updateUser                // ✅ utiliser la fonction du controller
+  authorize(['CLIENT', 'PROPRIETAIRE']), 
+  userController.updateUser 
 )
 
 router.get('/', userController.getAllUsers)

@@ -43,15 +43,13 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ where: { email } });
     if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
     
-
-    // Comparer le mot de passe
     const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
     
     if (!isMatch) return res.status(401).json({ message: 'Mot de passe incorrect' });
 
 
     const token = jwt.sign(
-      { id: user.id, role: user.role }, // payload
+      { id: user.id, role: user.role }, 
       jwtConfig.secret,
       { expiresIn: jwtConfig.expiresIn }
     );

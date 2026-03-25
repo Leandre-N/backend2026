@@ -10,9 +10,8 @@ const SalleEquipement = require('./salleEquipement')
 const SalleImage = require('./salleImage')
 const Notification = require('./notification')
 
-
-User.hasMany(Salle, { foreignKey: 'proprietaire_id' })
-Salle.belongsTo(User, { foreignKey: 'proprietaire_id' })
+User.hasMany(Salle, { foreignKey: 'proprietaire_id', as: 'salles' })
+Salle.belongsTo(User, { foreignKey: 'proprietaire_id', as: 'user' }) // ✅ as: 'user'
 
 
 User.hasMany(Reservation, { foreignKey: 'user_id' })
