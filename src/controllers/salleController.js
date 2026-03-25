@@ -69,8 +69,23 @@ const updateSalle = async (req, res) => {
     if (!salle) return res.status(404).json({ message: 'Salle non trouvée' })
     if (salle.proprietaire_id !== req.user.id) return res.status(403).json({ message: 'Impossible de modifier une salle qui n\'est pas à vous' })
 
-    const { nom, description, adresse, prix_jour, capacite } = req.body
-    await salle.update({ nom, description, adresse, prix_jour, capacite })
+    const { nom, description, adresse, prix, capacite, ville } = req.body
+    
+    // Si une nouvelle image est envoyée, on remplace l'ancienne
+    let imageUrl = salle.image
+    if (req.file) {
+      imageUrl = `uploads/salles/${req.file.filename}`
+    }
+
+    await salle.update({ 
+      nom, 
+      description, 
+      adresse, 
+      ville,
+      prix: prix ? parseFloat(prix) : salle.prix, 
+      capacite: capacite ? parseInt(capacite) : salle.capacite,
+      image: imageUrl
+    })
     res.json({ message: 'Salle mise à jour avec succès', salle })
   } catch (error) {
     res.status(500).json({ error: error.message })

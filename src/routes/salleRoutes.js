@@ -15,6 +15,12 @@ router.post(
 router.delete('/:id', auth, authorize(['PROPRIETAIRE']), salleController.deleteSalle)
 router.get('/', salleController.getAllSalles)
 router.get('/:id', salleController.getSalleById)
-router.put('/:id', salleController.updateSalle)
+router.put(
+  '/:id',
+  auth,
+  authorize(['PROPRIETAIRE']),
+  upload.single('image'),
+  salleController.updateSalle
+)
 
 module.exports = router
