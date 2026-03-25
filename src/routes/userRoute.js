@@ -6,6 +6,9 @@ const { auth, authorize } = require('../middlewares/auth')  // ✅ corrige l'imp
 
 router.post('/', userController.createUser)
 router.post('/login', userController.loginUser)
+
+router.get('/dashboard', auth, authorize(['PROPRIETAIRE']), userController.getProprietaireDashboard)
+
 router.put(
   '/:id',
   auth,
