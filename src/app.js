@@ -47,4 +47,7 @@ app.use('/api/salle-images', salleImageRoutes)
 const notificationRoutes = require('./routes/notificationRoutes')
 app.use('/api/notifications', notificationRoutes)
 
+const messageRoutes = require('./routes/messageRoutes')
+app.use('/api/messages', messageRoutes)
+
 module.exports = app;

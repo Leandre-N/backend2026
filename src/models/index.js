@@ -9,6 +9,7 @@ const Equipement = require('./equipement')
 const SalleEquipement = require('./salleEquipement')
 const SalleImage = require('./salleImage')
 const Notification = require('./notification')
+const Message = require('./message')
 
 User.hasMany(Salle, { foreignKey: 'proprietaire_id', as: 'salles' })
 Salle.belongsTo(User, { foreignKey: 'proprietaire_id', as: 'user' }) // ✅ as: 'user'
@@ -57,6 +58,15 @@ SalleImage.belongsTo(Salle, { foreignKey: 'salle_id' })
 User.hasMany(Notification, { foreignKey: 'user_id' })
 Notification.belongsTo(User, { foreignKey: 'user_id' })
 
+
+User.hasMany(Message, { foreignKey: 'sender_id', as: 'sentMessages' })
+User.hasMany(Message, { foreignKey: 'receiver_id', as: 'receivedMessages' })
+Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' })
+Message.belongsTo(User, { foreignKey: 'receiver_id', as: 'receiver' })
+
+Salle.hasMany(Message, { foreignKey: 'salle_id' })
+Message.belongsTo(Salle, { foreignKey: 'salle_id' })
+
 module.exports = {
   sequelize,
   User,
@@ -68,5 +78,6 @@ module.exports = {
   Equipement,
   SalleEquipement,
   SalleImage,
-  Notification
+  Notification,
+  Message
 }
