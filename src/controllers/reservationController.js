@@ -1,6 +1,8 @@
 const Reservation = require('../models/reservation')
 const Salle = require('../models/salle')
 const User = require('../models/user')
+const Notification = require('../models/notification')
+const Disponibilite = require('../models/disponibilite')
 
 
 const createReservation = async (req, res) => {
@@ -85,18 +87,85 @@ const updateReservationStatus = async (req, res) => {
     }
 
     await reservation.update({ statut })
+
+    // 1. Notification pour le client
+    if (statut === 'CONFIRMEE' || statut === 'ANNULEE') {
+      try {
+        await Notification.create({
+          user_id: reservation.user_id,
+          salle_id: reservation.salle_id,
+          titre: statut === 'CONFIRMEE' ? 'Réservation confirmée !' : 'Réservation annulée',
+          message: statut === 'CONFIRMEE' 
+            ? `Votre réservation pour la salle ${salle.nom} a été acceptée.` 
+            : `Désolé, votre réservation pour la salle ${salle.nom} a été refusée.`,
+        })
+      } catch (notifError) {
+        console.error('Erreur lors de la création de la notification:', notifError);
+      }
+    }
+
+    // 2. Gestion de la table Disponibilite
+    if (statut === 'CONFIRMEE') {
+      try {
+        await Disponibilite.findOrCreate({
+          where: {
+            salle_id: reservation.salle_id,
+            date: reservation.date,
+            creneau: reservation.creneau
+          },
+          defaults: { statut: 'RESERVE' }
+        }).then(([dispo, created]) => {
+          if (!created) dispo.update({ statut: 'RESERVE' });
+        });
+      } catch (dispoError) {
+        console.error('Erreur synchronisation disponibilité:', dispoError);
+      }
+    } else if (statut === 'ANNULEE' || statut === 'EN_ATTENTE') {
+      try {
+        await Disponibilite.update(
+          { statut: 'LIBRE' },
+          { 
+            where: { 
+              salle_id: reservation.salle_id, 
+              date: reservation.date, 
+              creneau: reservation.creneau 
+            } 
+          }
+        );
+      } catch (dispoError) {
+        console.error('Erreur libération disponibilité:', dispoError);
+      }
+    }
+
     res.json({ message: 'Statut mis à jour avec succès', reservation })
   } catch (error) {
+    console.error('Erreur updateReservationStatus:', error);
     res.status(500).json({ error: error.message })
   }
 }
 
 const deleteReservation = async (req, res) => {
   try {
-    if (req.user.role !== 'CLIENT') return res.status(403).json({ message: 'Accès réservé aux clients' })
+    if (req.user.role !== 'CLIENT' && req.user.role !== 'PROPRIETAIRE') return res.status(403).json({ message: 'Accès refusé' })
+    
     const reservation = await Reservation.findByPk(req.params.id)
     if (!reservation) return res.status(404).json({ message: 'Réservation non trouvée' })
-    if (reservation.user_id !== req.user.id) return res.status(403).json({ message: 'Impossible de supprimer cette réservation' })
+
+    // Libérer la date dans Disponibilite avant de supprimer
+    try {
+      await Disponibilite.update(
+        { statut: 'LIBRE' },
+        { 
+          where: { 
+            salle_id: reservation.salle_id, 
+            date: reservation.date, 
+            creneau: reservation.creneau 
+          } 
+        }
+      );
+    } catch (dispoError) {
+      console.error('Erreur libération dispo lors de la suppression:', dispoError);
+    }
 
     await reservation.destroy()
     res.json({ message: 'Réservation supprimée avec succès' })
@@ -108,14 +177,19 @@ const deleteReservation = async (req, res) => {
 const getBlockedDates = async (req, res) => {
   try {
     const { salle_id } = req.params
-    const reservations = await Reservation.findAll({
+    const disponibilites = await Disponibilite.findAll({
       where: {
         salle_id,
-        statut: 'CONFIRMEE'
+        statut: 'RESERVE'
       },
       attributes: ['date']
     })
-    const dates = reservations.map(r => r.date)
+    const dates = disponibilites.map(d => {
+      if (d.date instanceof Date) {
+        return d.date.toISOString().split('T')[0];
+      }
+      return d.date;
+    })
     res.json(dates)
   } catch (error) {
     res.status(500).json({ error: error.message })

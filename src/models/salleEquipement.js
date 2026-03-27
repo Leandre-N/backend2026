@@ -4,10 +4,12 @@ const sequelize = require('../config/database');
 const SalleEquipement = sequelize.define('salle_equipement', {
     salle_id: {
         type: DataTypes.INTEGER,
+        primaryKey: true,
         allowNull: false
     },
     equipement_id: {
         type: DataTypes.INTEGER,
+        primaryKey: true,
         allowNull: false
     },
     quantite: {

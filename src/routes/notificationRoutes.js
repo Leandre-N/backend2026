@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const notificationController = require('../controllers/notificationController')
+const { auth } = require('../middlewares/auth')
 
+router.use(auth)
 
-router.post('/', notificationController.createNotification)
-router.get('/user/:user_id', notificationController.getMyNotifications)
-router.put('/:id/lu', notificationController.markAsRead)
-router.delete('/:id', notificationController.deleteNotification)
+router.get('/me', notificationController.getMyNotifications)
+router.put('/mark-as-read', notificationController.markAsRead)
 
 module.exports = router

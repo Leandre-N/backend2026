@@ -1,10 +1,7 @@
 const http = require('http');
 const app = require('./src/app');
 const sequelize = require('./src/config/database');
-const { error } = require('console');
-
-require('./src/models')
-
+require('./src/models');
 
 
 const PORT = 3000 ;

@@ -58,8 +58,10 @@ const createSalle = async (req, res) => {
 const getAllSalles = async (req, res) => {
   try {
     const salles = await Salle.findAll({ include: [{ model: Equipement, through: SalleEquipement }] })
+    console.log(`DEBUG: getAllSalles a trouvé ${salles.length} salles`);
     res.json(salles)
   } catch (error) {
+    console.error('❌ Erreur getAllSalles :', error.message);
     res.status(500).json({ error: error.message })
   }
 }
