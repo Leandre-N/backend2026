@@ -30,6 +30,14 @@ const Reservation = sequelize.define('reservation', {
   statut: {
     type: DataTypes.ENUM('EN_ATTENTE', 'CONFIRMEE', 'ANNULEE', 'TERMINEE'),
     defaultValue: 'EN_ATTENTE'
+  },
+  num_tel: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  mode_paiement: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 });
 

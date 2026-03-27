@@ -123,11 +123,21 @@ const getProprietaireDashboard = async (req, res) => {
     if (req.user.role !== 'PROPRIETAIRE') return res.status(403).json({ message: 'Accès réservé aux propriétaires' })
     const salles = await Salle.findAll({ where: { proprietaire_id: req.user.id } })
     const reservations = await Reservation.findAll({
-      include: [{ model: Salle, where: { proprietaire_id: req.user.id } }]
+      include: [
+        { model: Salle, where: { proprietaire_id: req.user.id } },
+        { model: User, attributes: ['id', 'nom', 'telephone'] }
+      ]
     })
+    
+    // Calculer les revenus totaux (somme des montants des réservations CONFIRMEE)
+    const revenus_totaux = reservations
+      .filter(r => r.statut === 'CONFIRMEE')
+      .reduce((sum, r) => sum + parseFloat(r.montant_total || 0), 0)
+
     res.json({
       total_salles: salles.length,
       total_reservations: reservations.length,
+      revenus_totaux,
       salles,
       reservations
     })
