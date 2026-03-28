@@ -1,6 +1,7 @@
 const Message = require('../models/message');
 const User = require('../models/user');
 const Salle = require('../models/salle');
+const { Op } = require('sequelize');
 
 const sendMessage = async (req, res) => {
   try {

@@ -50,4 +50,20 @@ app.use('/api/notifications', notificationRoutes)
 const messageRoutes = require('./routes/messageRoutes')
 app.use('/api/messages', messageRoutes)
 
+// ✅ Gestion globale des erreurs (incluant Multer)
+app.use((err, req, res, next) => {
+  if (err instanceof require('multer').MulterError) {
+    console.error('❌ Erreur Multer :', err.message);
+    return res.status(400).json({ message: `Erreur d'upload : ${err.message}` });
+  }
+  
+  if (err.message === 'Request aborted') {
+    console.warn('⚠️ Requête interrompue par le client.');
+    return; // Évite de faire crasher le serveur
+  }
+
+  console.error('❌ Erreur serveur :', err.stack);
+  res.status(500).json({ message: 'Erreur interne du serveur' });
+});
+
 module.exports = app;

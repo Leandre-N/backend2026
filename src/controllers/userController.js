@@ -1,6 +1,8 @@
 const User = require('../models/user')
 const Salle = require('../models/salle')
 const Reservation = require('../models/reservation')
+const Message = require('../models/message') // ✅ AJOUT
+const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/jwt');
@@ -111,7 +113,10 @@ const deleteUser = async (req, res) => {
 const getMyReservations = async (req, res) => {
   try {
     if (req.user.role !== 'CLIENT') return res.status(403).json({ message: 'Accès réservé aux clients' })
-    const reservations = await Reservation.findAll({ where: { user_id: req.user.id } })
+    const reservations = await Reservation.findAll({
+      where: { user_id: req.user.id },
+      include: [{ model: Salle }]
+    })
     res.json(reservations)
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -134,9 +139,15 @@ const getProprietaireDashboard = async (req, res) => {
       .filter(r => r.statut === 'CONFIRMEE')
       .reduce((sum, r) => sum + parseFloat(r.montant_total || 0), 0)
 
+    // Compter les messages reçus
+    const total_messages = await Message.count({
+      where: { receiver_id: req.user.id }
+    })
+    
     res.json({
       total_salles: salles.length,
       total_reservations: reservations.length,
+      total_messages, // ✅ AJOUT
       revenus_totaux,
       salles,
       reservations

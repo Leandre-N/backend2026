@@ -4,6 +4,8 @@ const messageController = require('../controllers/messageController');
 const { auth } = require('../middlewares/auth') 
 
 
+router.use(auth);
+
 router.post('/', messageController.sendMessage);
 router.get('/', messageController.getMessages);
 router.get('/inbox', messageController.getInbox);
