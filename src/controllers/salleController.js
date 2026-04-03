@@ -76,7 +76,7 @@ const getSalleById = async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['nom', 'telephone'], // ✅ nom + tel du proprio
+          attributes: ['id', 'nom', 'telephone'], // ✅ id nécessaire pour le chat
         }
       ]
     })
